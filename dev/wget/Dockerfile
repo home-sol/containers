@@ -5,3 +5,5 @@ RUN apt-get update \
         wget \
     && rm -rf /tmp/* /var/lib/apt/lists/*
 
+
+ENTRYPOINT wget
