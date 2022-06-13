@@ -111,8 +111,8 @@ jobs:
       if: github.event_name != 'pull_request'
       with:
         registry: ghcr.io
-        username: ${{ secrets.GHCR_USERNAME }}
-        password: ${{ secrets.GHCR_TOKEN }}
+        username: ${{ github.actor }}
+        password: ${{ secrets.GITHUB_TOKEN }}
 
     # Install and configure Buildx
     - name: Set up Docker Buildx
@@ -163,10 +163,6 @@ jobs:
         tags: |
           ghcr.io/${{ github.repository_owner }}/${{ matrix.container }}:latest
           ghcr.io/${{ github.repository_owner }}/${{ matrix.container }}:v${{ steps.prep.outputs.version }}
-          truecharts/${{ matrix.container }}:latest
-          truecharts/${{ matrix.container }}:v${{ steps.prep.outputs.version }}
-          quay.io/truecharts/${{ matrix.container }}:latest
-          quay.io/truecharts/${{ matrix.container }}:v${{ steps.prep.outputs.version }}
         cache-from: ${{ steps.prep.outputs.cache_from }}
         cache-to: ${{ steps.prep.outputs.cache_to }}
 
@@ -186,6 +182,6 @@ jobs:
       - name: automerge
         uses: pascalgn/automerge-action@v0.15.3
         env:
-          GITHUB_TOKEN: "${{ secrets.BOT_TOKEN }}"
+          GITHUB_TOKEN: "${{ secrets.GITHUB_TOKEN }}"
           UPDATE_RETRIES: 12
-          UPDATE_RETRY_SLEEP: 60000  
+          UPDATE_RETRY_SLEEP: 60000
