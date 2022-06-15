@@ -142,6 +142,9 @@ jobs:
     name: Automerge build
     runs-on: ubuntu-22.04
     if: github.event_name == 'pull_request'
+    permissions:
+      contents: write
+      pull-requests: write
     steps:
       - name: automerge
         uses: pascalgn/automerge-action@v0.15.3
