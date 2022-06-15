@@ -1,5 +1,3 @@
-ARG BASE=openjdk:8u332-jre-bullseye
-
 FROM ghcr.io/home-sol/wget:1.21-1 as downloads
 
 ARG VERSION=5.1.7
@@ -24,17 +22,17 @@ SHELL ["/bin/bash", "-o", "pipefail", "-c"]
 
 RUN apt-get update \
     && apt-get install --no-install-recommends -y \
-        gpg \
+        gpg=2.2.27-2+deb11u1 \
     && rm -rf /tmp/* /var/lib/apt/lists/*
 
 
 RUN wget -q https://www.mongodb.org/static/pgp/server-5.0.asc
-RUN cat server-5.0.asc | gpg --dearmor  > server-5.0.gpg \
+RUN gpg --dearmor  > server-5.0.gpg  < server-5.0.asc\
     && rm server-5.0.asc \
     && install server-5.0.gpg /etc/apt/trusted.gpg.d/
 
 
-FROM ${BASE}
+FROM openjdk:8u332-jre-bullseye
 
 
 LABEL maintainer="Neeraj Mittal <mittal.neeraj@gmail.com>"
