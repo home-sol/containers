@@ -42,6 +42,8 @@ ARG ARCH=amd64
 
 ENV OMADA_HOME=/opt/tplink/EAPController
 
+SHELL ["/bin/bash", "-o", "pipefail", "-c"]
+
 COPY --from=download-mongodb-key /etc/apt/trusted.gpg.d/server-5.0.gpg /etc/apt/trusted.gpg.d/
 RUN echo "deb http://repo.mongodb.org/apt/debian buster/mongodb-org/5.0 main" | tee /etc/apt/sources.list.d/mongodb-org-5.0.list
 
