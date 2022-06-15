@@ -16,22 +16,6 @@ RUN tar zxvf "${OMADA_TAR}" \
     && rm -r omada/install.sh omada/uninstall.sh omada/readme.txt omada/release_note.txt
 
 
-FROM ghcr.io/home-sol/wget:1.21-1 as download-mongodb-key
-
-SHELL ["/bin/bash", "-o", "pipefail", "-c"]
-
-RUN apt-get update \
-    && apt-get install --no-install-recommends -y \
-        gpg=2.2.27-2+deb11u1 \
-    && rm -rf /tmp/* /var/lib/apt/lists/*
-
-
-RUN wget -q https://www.mongodb.org/static/pgp/server-5.0.asc
-RUN gpg --dearmor  > server-5.0.gpg  < server-5.0.asc\
-    && rm server-5.0.asc \
-    && install server-5.0.gpg /etc/apt/trusted.gpg.d/
-
-
 FROM ubuntu:20.04
 
 
@@ -47,12 +31,6 @@ SHELL ["/bin/bash", "-o", "pipefail", "-c"]
 RUN apt-get update \
     && apt-get install --no-install-recommends -y \
         openjdk-8-jre-headless=8u312-b07-0ubuntu1~20.04 \
-    && rm -rf /tmp/* /var/lib/apt/lists/*
-
-
-
-RUN apt-get update \
-    && apt-get install --no-install-recommends -y \
         mongodb-server-core=1:3.6.9+really3.6.8+90~g8e540c0b6d-0ubuntu5.3 \
     && rm -rf /tmp/* /var/lib/apt/lists/*
 
