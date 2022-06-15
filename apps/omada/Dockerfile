@@ -32,7 +32,7 @@ RUN gpg --dearmor  > server-5.0.gpg  < server-5.0.asc\
     && install server-5.0.gpg /etc/apt/trusted.gpg.d/
 
 
-FROM openjdk:8u332-jre-bullseye
+FROM ubuntu:20.04
 
 
 LABEL maintainer="Neeraj Mittal <mittal.neeraj@gmail.com>"
@@ -44,15 +44,17 @@ ENV OMADA_HOME=/opt/tplink/EAPController
 
 SHELL ["/bin/bash", "-o", "pipefail", "-c"]
 
-COPY --from=download-mongodb-key /etc/apt/trusted.gpg.d/server-5.0.gpg /etc/apt/trusted.gpg.d/
-RUN echo "deb http://repo.mongodb.org/apt/debian buster/mongodb-org/5.0 main" | tee /etc/apt/sources.list.d/mongodb-org-5.0.list
+RUN apt-get update \
+    && apt-get install --no-install-recommends -y \
+        openjdk-8-jre-headless=8u312-b07-0ubuntu1~20.04 \
+    && rm -rf /tmp/* /var/lib/apt/lists/*
+
+
 
 RUN apt-get update \
     && apt-get install --no-install-recommends -y \
-        procps=2:3.3.17-5 \
-        mongodb-org-database=5.0.9 \
+        mongodb-server-core=1:3.6.9+really3.6.8+90~g8e540c0b6d-0ubuntu5.3 \
     && rm -rf /tmp/* /var/lib/apt/lists/*
-
 
 COPY --from=downloads /downloads/omada ${OMADA_HOME}
 
