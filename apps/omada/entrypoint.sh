@@ -5,6 +5,8 @@ set -e
 SSL_CERTS_DIR="${SSL_CERT_NAME:-/cert/tls.crt}"
 SSL_CERT_KEY="${SSL_KEY_NAME:-/cert/tls.key}"
 
+KEYSTORE_DIR="${OMADA_HOME}/data/keystore"
+
 set_port_property() {
     echo "INFO: Setting '${1}' to ${3} in omada.properties"
     sed -i "s/^${1}=${2}$/${1}=${3}/g" /opt/tplink/EAPController/properties/omada.properties
