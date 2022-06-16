@@ -25,6 +25,3 @@ general:
     - CVE-2022-22965
   bestPracticeViolations:
     - CIS-DI-0005
-    - DKL-LI-0003
-    - CIS-DI-0006
-    - DKL-DI-0006

@@ -79,17 +79,18 @@ jobs:
       - name: Prepare
         id: prep
         run: |
-          VERSION=$(jq .version --raw-output "./${CATEGORY}/${{ matrix.container }}/build.config.json")
-          PLATFORM=$(jq '.platforms | join(",")' --raw-output "./${CATEGORY}/${{ matrix.container }}/build.config.json")
-          echo ::set-output name=version::${VERSION}
-          echo ::set-output name=platforms::${PLATFORMS}
-          
           if test -f "./apps/${{ matrix.container }}/Dockerfile"; then
             CATEGORY="apps"
           else
             CATEGORY="dev"
           fi
           echo ::set-output name=category::${CATEGORY}
+
+          VERSION=$(jq .version --raw-output "./${CATEGORY}/${{ matrix.container }}/build.config.json")
+          PLATFORM=$(jq '.platforms | join(",")' --raw-output "./${CATEGORY}/${{ matrix.container }}/build.config.json")
+          echo ::set-output name=version::${VERSION}
+          echo ::set-output name=platforms::${PLATFORMS}
+          
 
           if [ "${{github.event_name}}" == "pull_request" ]; then
             echo ::set-output name=push::false
