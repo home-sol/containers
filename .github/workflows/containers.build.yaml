@@ -118,6 +118,25 @@ jobs:
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
 
+      # Creates a local build to run tests on
+      - name: Build and Load local test-container
+        uses: docker/build-push-action@ad44023a93711e3deb337508980b4b5e9bcdc5dc
+        with:
+          build-args: VERSION=${{ steps.prep.outputs.version }}
+          context: ./${{ steps.prep.outputs.category }}/${{ matrix.container }}
+          load: true
+          platforms: ${{ steps.prep.outputs.platforms }}
+          push: ${{ steps.prep.outputs.push }}
+          tags: |
+            ghcr.io/${{ github.repository_owner }}/${{ matrix.container }}:test
+          cache-from: ${{ steps.prep.outputs.cache_from }}
+          cache-to: ${{ steps.prep.outputs.cache_to }}
+
+      - name: Scan image
+        uses: Azure/container-scan@v0
+        with:
+          image-name: ghcr.io/${{ github.repository_owner }}/${{ matrix.container }}:test
+
       - name: Build and push Docker image
         uses: docker/build-push-action@ad44023a93711e3deb337508980b4b5e9bcdc5dc
         with:

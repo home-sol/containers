@@ -18,7 +18,6 @@ RUN tar zxvf "${OMADA_TAR}" \
 
 FROM ubuntu:20.04
 
-
 LABEL maintainer="Neeraj Mittal <mittal.neeraj@gmail.com>"
 
 # valid values: amd64 (default) | arm64 | armv7l
@@ -41,6 +40,13 @@ COPY --from=downloads /downloads/omada ${OMADA_HOME}
 RUN ln -sf "$(which mongod)" "${OMADA_HOME}/bin/mongod"
 
 COPY entrypoint.sh /entrypoint.sh
+
+RUN groupadd -g 508 omada \
+    && useradd -u 508 -g 508 -d "${OMADA_HOME}" omada \
+    && mkdir "${OMADA_HOME}/logs" "${OMADA_HOME}/work" \
+    && chown -R omada:omada "${OMADA_HOME}/data" "${OMADA_HOME}/logs" "${OMADA_HOME}/work"
+
+USER omada
 
 ENV MANAGE_HTTP_PORT=8088
 ENV MANAGE_HTTPS_PORT=8043
