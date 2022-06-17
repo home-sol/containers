@@ -3,7 +3,9 @@ FROM ubuntu:22.04
 LABEL maintainer="Neeraj Mittal <mittal.neeraj@gmail.com>"
 
 # CIS-DI-0008 - dockle
-RUN chmod g-s usr/bin/wall
+RUN chmod g-s usr/bin/* \
+    && chmod u-s usr/bin/* \
+    && chmod g-s usr/sbin/*
 
 WORKDIR /downloads
 
