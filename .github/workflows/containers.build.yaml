@@ -7,11 +7,13 @@ on:
       - main
     paths:
       - "apps/**"
+      - "base/**"
       - "dev/**"
       - ".github/workflows/containers.build.yaml"
   pull_request:
     paths:
       - "apps/**"
+      - "base/**"
       - "dev/**"
       - ".github/workflows/containers.build.yaml"
 
@@ -79,9 +81,11 @@ jobs:
       - name: Prepare
         id: prep
         run: |
-          if test -f "./apps/${{ matrix.container }}/Dockerfile"; then
+          if test -f "./base/${{ matrix.container }}/Dockerfile"; then
+            CATEGORY="base"
+          else if test -f "./apps/${{ matrix.container }}/Dockerfile"; then
             CATEGORY="apps"
-          else
+          else 
             CATEGORY="dev"
           fi
           echo ::set-output name=category::${CATEGORY}
@@ -90,7 +94,7 @@ jobs:
           PLATFORM=$(jq '.platforms | join(",")' --raw-output "./${CATEGORY}/${{ matrix.container }}/build.config.json")
           echo ::set-output name=version::${VERSION}
           echo ::set-output name=platforms::${PLATFORMS}
-          
+
 
           if [ "${{github.event_name}}" == "pull_request" ]; then
             echo ::set-output name=push::false
