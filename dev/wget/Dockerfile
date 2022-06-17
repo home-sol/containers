@@ -3,7 +3,7 @@ FROM ubuntu:22.04
 LABEL maintainer="Neeraj Mittal <mittal.neeraj@gmail.com>"
 
 # CIS-DI-0008 - dockle
-RUN chmod grwxr-xr-x usr/bin/wall
+RUN chmod g-s usr/bin/wall
 
 WORKDIR /downloads
 
