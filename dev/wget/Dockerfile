@@ -1,13 +1,8 @@
-FROM ubuntu:22.04
+FROM ghcr.io/home-sol/ubuntu:22.04-1
 
 LABEL maintainer="Neeraj Mittal <mittal.neeraj@gmail.com>"
 
-# CIS-DI-0008 - dockle
-RUN chmod g-s usr/bin/* \
-    && chmod u-s usr/bin/* \
-    && chmod g-s usr/sbin/*
-
-WORKDIR /downloads
+USER root
 
 RUN apt-get update \
     && apt-get upgrade -y \
@@ -16,10 +11,8 @@ RUN apt-get update \
         ca-certificates=20211016 \
     && rm -rf /tmp/* /var/lib/apt/lists/*
 
-RUN groupadd -g 1001 nonroot \
-    && useradd -u 1001 -g 1001 -d /downloads nonroot \
-    && chown -R nonroot:nonroot /downloads
-
 USER nonroot
+
+WORKDIR /nonroot
 
 ENTRYPOINT [ "wget" ]
