@@ -1,13 +1,12 @@
-FROM debian:11.3-slim
+FROM ubuntu:22.04
 
 LABEL maintainer="Neeraj Mittal <mittal.neeraj@gmail.com>"
 
-RUN echo "deb http://security.debian.org/debian-security bullseye-security main contrib non-free" >> /etc/apt/sources.list \
-    && apt-get update \
+RUN apt-get update \
     && apt-get upgrade -y \
     && apt-get install --no-install-recommends -y \
-        wget=1.21-1+deb11u1 \
-        ca-certificates=20210119 \
+        wget=1.21.2-2ubuntu1 \
+        ca-certificates=20211016 \
     && rm -rf /tmp/* /var/lib/apt/lists/*
 
 ENTRYPOINT [ "wget" ]
