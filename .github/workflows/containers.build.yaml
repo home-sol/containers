@@ -84,7 +84,7 @@ jobs:
         run: |
           if test -f "./base/${{ matrix.container }}/Dockerfile"; then
             CATEGORY="base"
-          else if test -f "./apps/${{ matrix.container }}/Dockerfile"; then
+          elif test -f "./apps/${{ matrix.container }}/Dockerfile"; then
             CATEGORY="apps"
           else 
             CATEGORY="dev"
