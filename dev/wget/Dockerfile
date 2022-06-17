@@ -1,4 +1,4 @@
-FROM debian:11.3
+FROM debian:11.3-slim
 
 LABEL maintainer="Neeraj Mittal <mittal.neeraj@gmail.com>"
 
