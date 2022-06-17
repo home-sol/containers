@@ -5,6 +5,8 @@ set -e
 SSL_CERTS_DIR="${SSL_CERT_NAME:-/cert/tls.crt}"
 SSL_CERT_KEY="${SSL_KEY_NAME:-/cert/tls.key}"
 
+KEYSTORE_DIR="${OMADA_HOME}/data/keystore"
+
 set_port_property() {
     echo "INFO: Setting '${1}' to ${3} in omada.properties"
     sed -i "s/^${1}=${2}$/${1}=${3}/g" /opt/tplink/EAPController/properties/omada.properties
@@ -15,10 +17,24 @@ set_port_property "manage.https.port" 8043 "${MANAGE_HTTPS_PORT}"
 set_port_property "portal.http.port" 8088 "${PORTAL_HTTP_PORT}"
 set_port_property "portal.https.port" 8843 "${PORTAL_HTTPS_PORT}"
 
+# make sure permissions are set appropriately on each directory
+for DIR in data work logs; do
+    OWNER="$(stat -c '%u' /opt/tplink/EAPController/${DIR})"
+    GROUP="$(stat -c '%g' /opt/tplink/EAPController/${DIR})"
+
+    if [ "${OWNER}" != "508" ] || [ "${GROUP}" != "508" ]; then
+        # notify user that uid:gid are not correct and fix them
+        echo "WARNING: owner or group (${OWNER}:${GROUP}) not set correctly on '/opt/tplink/EAPController/${DIR}'"
+        echo "INFO: setting correct permissions"
+        chown -R omada:omada "/opt/tplink/EAPController/${DIR}"
+    fi
+done
+
 # check to see if there is a db directory; create it if it is missing
 if [ ! -d "/opt/tplink/EAPController/data/db" ]; then
     echo "INFO: Database directory missing; creating '/opt/tplink/EAPController/data/db'"
     mkdir /opt/tplink/EAPController/data/db
+    chown omada:omada /opt/tplink/EAPController/data/db
     echo "done"
 fi
 
@@ -49,6 +65,10 @@ if [ -f "${SSL_CERTS_DIR}/tls.crt" ] && [ -f "${SSL_CERTS_DIR}/tls.key" ]; then
         -name eap \
         -out "${KEYSTORE_DIR}/eap.keystore" \
         -passout pass:tplink
+
+    # set ownership/permission on keystore
+    chown omada:omada "${KEYSTORE_DIR}/eap.keystore"
+    chmod 400 "${KEYSTORE_DIR}/eap.keystore"
 fi
 
 tail -F -n 0 /opt/tplink/EAPController/logs/server.log &

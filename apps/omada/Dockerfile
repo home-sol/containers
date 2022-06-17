@@ -18,7 +18,6 @@ RUN tar zxvf "${OMADA_TAR}" \
 
 FROM ubuntu:20.04
 
-
 LABEL maintainer="Neeraj Mittal <mittal.neeraj@gmail.com>"
 
 # valid values: amd64 (default) | arm64 | armv7l
@@ -30,6 +29,7 @@ SHELL ["/bin/bash", "-o", "pipefail", "-c"]
 
 RUN apt-get update \
     && apt-get install --no-install-recommends -y \
+        wget=1.20.3-1ubuntu2 \
         openjdk-8-jre-headless=8u312-b07-0ubuntu1~20.04 \
         mongodb-server-core=1:3.6.9+really3.6.8+90~g8e540c0b6d-0ubuntu5.3 \
     && rm -rf /tmp/* /var/lib/apt/lists/*
@@ -42,18 +42,27 @@ RUN ln -sf "$(which mongod)" "${OMADA_HOME}/bin/mongod"
 
 COPY entrypoint.sh /entrypoint.sh
 
+RUN groupadd -g 508 omada \
+    && useradd -u 508 -g 508 -d "${OMADA_HOME}" omada \
+    && mkdir "${OMADA_HOME}/logs" "${OMADA_HOME}/work" \
+    && chown -R omada:omada "${OMADA_HOME}/data" "${OMADA_HOME}/logs" "${OMADA_HOME}/work"
+
+USER omada
+
 ENV MANAGE_HTTP_PORT=8088
 ENV MANAGE_HTTPS_PORT=8043
 ENV PORTAL_HTTP_PORT=8088
 ENV PORTAL_HTTPS_PORT=8843
 ENV SHOW_MONGODB_LOGS=false
 
-ENV KEYSTORE_DIR=${OMADA_HOME}/data/keystore
-
 ENV SSL_CERTS_DIR=/etc/tplink/certs
 
 WORKDIR /opt/tplink/EAPController/lib
 EXPOSE 8088 8043 8843 29810/udp 29811 29812 29813 29814
+
+HEALTHCHECK --interval=1m --timeout=3s --retries=3 \
+    CMD "wget --quiet --tries=1 --no-check-certificate -O /dev/null --server-response --timeout=5 'https://localhost:${MANAGE_HTTPS_PORT:-8043}/login' || exit 1"
+
 VOLUME ["/etc/tplink/certs", "/opt/tplink/EAPController/data","/opt/tplink/EAPController/work","/opt/tplink/EAPController/logs"]
 
 ENTRYPOINT ["/entrypoint.sh"]

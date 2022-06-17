@@ -1,11 +1,25 @@
-FROM debian:11.3
+FROM ubuntu:22.04
 
 LABEL maintainer="Neeraj Mittal <mittal.neeraj@gmail.com>"
 
+# CIS-DI-0008 - dockle
+RUN chmod g-s usr/bin/* \
+    && chmod u-s usr/bin/* \
+    && chmod g-s usr/sbin/*
+
+WORKDIR /downloads
+
 RUN apt-get update \
+    && apt-get upgrade -y \
     && apt-get install --no-install-recommends -y \
-        wget=1.21-1+deb11u1 \
-        ca-certificates=20210119 \
+        wget=1.21.2-2ubuntu1 \
+        ca-certificates=20211016 \
     && rm -rf /tmp/* /var/lib/apt/lists/*
+
+RUN groupadd -g 1001 nonroot \
+    && useradd -u 1001 -g 1001 -d /downloads nonroot \
+    && chown -R nonroot:nonroot /downloads
+
+USER nonroot
 
 ENTRYPOINT [ "wget" ]
