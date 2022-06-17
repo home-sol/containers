@@ -36,6 +36,7 @@ jobs:
           filters: |
             changed:
             - 'apps/**'
+            - 'base/**'
             - 'dev/**'
       - run: echo '${{ toJson(steps.filter.outputs) }}' > changes.json
       - id: reduce
