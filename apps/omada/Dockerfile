@@ -1,10 +1,8 @@
-FROM ghcr.io/home-sol/wget:1.21-1 as downloads
+FROM ghcr.io/home-sol/wget:1.21-2 as downloads
 
 ARG VERSION=5.1.7
 ARG OMADA_DIR="Omada_SDN_Controller_v${VERSION}_Linux_x64"
 ARG OMADA_TAR="${OMADA_DIR}.tar.gz"
-
-WORKDIR /downloads
 
 SHELL ["/bin/bash", "-o", "pipefail", "-c"]
 
@@ -16,7 +14,7 @@ RUN tar zxvf "${OMADA_TAR}" \
     && rm -r omada/install.sh omada/uninstall.sh omada/readme.txt omada/release_note.txt
 
 
-FROM ubuntu:20.04
+FROM ghcr.io/home-sol/ubuntu:22.04-1
 
 LABEL maintainer="Neeraj Mittal <mittal.neeraj@gmail.com>"
 
@@ -25,16 +23,29 @@ ARG ARCH=amd64
 
 ENV OMADA_HOME=/opt/tplink/EAPController
 
+USER root
 SHELL ["/bin/bash", "-o", "pipefail", "-c"]
 
 RUN apt-get update \
     && apt-get install --no-install-recommends -y \
-        wget=1.20.3-1ubuntu2 \
-        openjdk-8-jre-headless=8u312-b07-0ubuntu1~20.04 \
-        mongodb-server-core=1:3.6.9+really3.6.8+90~g8e540c0b6d-0ubuntu5.3 \
+        wget=1.21.2-2ubuntu1 \
+        ca-certificates=20211016 \
+        openjdk-8-jre-headless=8u312-b07-0ubuntu1 \
+        gnupg=2.2.27-3ubuntu2 \
     && rm -rf /tmp/* /var/lib/apt/lists/*
 
-COPY --from=downloads /downloads/omada ${OMADA_HOME}
+# Install mongodb with lbssl1.1 
+# https://www.mongodb.com/community/forums/t/installing-mongodb-over-ubuntu-22-04/159931/3
+RUN echo "deb http://security.ubuntu.com/ubuntu impish-security main" | tee /etc/apt/sources.list.d/impish-security.list \
+    && wget -qO - https://www.mongodb.org/static/pgp/server-5.0.asc | apt-key add - \
+    && echo "deb [ arch=amd64,arm64 ] https://repo.mongodb.org/apt/ubuntu focal/mongodb-org/5.0 multiverse" | tee /etc/apt/sources.list.d/mongodb-org-5.0.list \
+    && apt-get update \
+    && DEBIAN_FRONTEND=noninteractive TZ=Etc/UTC apt-get install --no-install-recommends -y \
+        libssl1.1=1.1.1l-1ubuntu1.3 \
+        mongodb-org-server=5.0.9 \
+    && rm -rf /tmp/* /var/lib/apt/lists/*
+
+COPY --from=downloads /nonroot/omada ${OMADA_HOME}
 
 
 # symlink for mongod
@@ -42,12 +53,9 @@ RUN ln -sf "$(which mongod)" "${OMADA_HOME}/bin/mongod"
 
 COPY entrypoint.sh /entrypoint.sh
 
-RUN groupadd -g 508 omada \
-    && useradd -u 508 -g 508 -d "${OMADA_HOME}" omada \
-    && mkdir "${OMADA_HOME}/logs" "${OMADA_HOME}/work" \
-    && chown -R omada:omada "${OMADA_HOME}/data" "${OMADA_HOME}/logs" "${OMADA_HOME}/work"
-
-USER omada
+WORKDIR "${OMADA_HOME}"
+RUN mkdir "${OMADA_HOME}/logs" "${OMADA_HOME}/work" \
+    && chown -R nonroot:nonroot "${OMADA_HOME}/data" "${OMADA_HOME}/logs" "${OMADA_HOME}/work"
 
 ENV MANAGE_HTTP_PORT=8088
 ENV MANAGE_HTTPS_PORT=8043
@@ -57,6 +65,7 @@ ENV SHOW_MONGODB_LOGS=false
 
 ENV SSL_CERTS_DIR=/etc/tplink/certs
 
+USER nonroot
 WORKDIR /opt/tplink/EAPController/lib
 EXPOSE 8088 8043 8843 29810/udp 29811 29812 29813 29814
 

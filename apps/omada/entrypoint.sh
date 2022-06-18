@@ -9,7 +9,7 @@ KEYSTORE_DIR="${OMADA_HOME}/data/keystore"
 
 set_port_property() {
     echo "INFO: Setting '${1}' to ${3} in omada.properties"
-    sed -i "s/^${1}=${2}$/${1}=${3}/g" /opt/tplink/EAPController/properties/omada.properties
+    sed -i "s/^${1}=${2}$/${1}=${3}/g" ${OMADA_HOME}/properties/omada.properties
 }
 
 set_port_property "manage.http.port" 8088 "${MANAGE_HTTP_PORT}"
@@ -19,29 +19,29 @@ set_port_property "portal.https.port" 8843 "${PORTAL_HTTPS_PORT}"
 
 # make sure permissions are set appropriately on each directory
 for DIR in data work logs; do
-    OWNER="$(stat -c '%u' /opt/tplink/EAPController/${DIR})"
-    GROUP="$(stat -c '%g' /opt/tplink/EAPController/${DIR})"
+    OWNER="$(stat -c '%u' ${OMADA_HOME}/${DIR})"
+    GROUP="$(stat -c '%g' ${OMADA_HOME}/${DIR})"
 
-    if [ "${OWNER}" != "508" ] || [ "${GROUP}" != "508" ]; then
+    if [ "${OWNER}" != "1001" ] || [ "${GROUP}" != "1001" ]; then
         # notify user that uid:gid are not correct and fix them
         echo "WARNING: owner or group (${OWNER}:${GROUP}) not set correctly on '/opt/tplink/EAPController/${DIR}'"
         echo "INFO: setting correct permissions"
-        chown -R omada:omada "/opt/tplink/EAPController/${DIR}"
+        chown -R nonroot:nonroot "/opt/tplink/EAPController/${DIR}"
     fi
 done
 
 # check to see if there is a db directory; create it if it is missing
-if [ ! -d "/opt/tplink/EAPController/data/db" ]; then
-    echo "INFO: Database directory missing; creating '/opt/tplink/EAPController/data/db'"
-    mkdir /opt/tplink/EAPController/data/db
-    chown omada:omada /opt/tplink/EAPController/data/db
+if [ ! -d "${OMADA_HOME}/data/db" ]; then
+    echo "INFO: Database directory missing; creating '${OMADA_HOME}/data/db'"
+    mkdir ${OMADA_HOME}/data/db
+    chown nonroot:nonroot ${OMADA_HOME}/data/db
     echo "done"
 fi
 
 # check to see if there is a work directory; create it if it is missing
-if [ ! -d "/opt/tplink/EAPController/work" ]; then
-    echo "INFO: Work directory missing; creating '/opt/tplink/EAPController/wrk'"
-    mkdir /opt/tplink/EAPController/work
+if [ ! -d "${OMADA_HOME}/work" ]; then
+    echo "INFO: Work directory missing; creating '${OMADA_HOME}/wrk'"
+    mkdir ${OMADA_HOME}/work
     echo "done"
 fi
 
@@ -67,15 +67,15 @@ if [ -f "${SSL_CERTS_DIR}/tls.crt" ] && [ -f "${SSL_CERTS_DIR}/tls.key" ]; then
         -passout pass:tplink
 
     # set ownership/permission on keystore
-    chown omada:omada "${KEYSTORE_DIR}/eap.keystore"
+    chown nonroot:nonroot "${KEYSTORE_DIR}/eap.keystore"
     chmod 400 "${KEYSTORE_DIR}/eap.keystore"
 fi
 
-tail -F -n 0 /opt/tplink/EAPController/logs/server.log &
+tail -F -n 0 ${OMADA_HOME}/logs/server.log &
 
 # tail the mongodb logs if set to true
 if [ "${SHOW_MONGODB_LOGS}" = "true" ]; then
-    tail -F -n 0 -q /opt/tplink/EAPController/logs/mongod.log &
+    tail -F -n 0 -q ${OMADA_HOME}/logs/mongod.log &
 fi
 
 # run the actual command
