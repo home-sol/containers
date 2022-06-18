@@ -1,0 +1,48 @@
+{
+    "name": "build-harness",
+    "build": {
+        "dockerfile": "Dockerfile",
+        // Update 'VARIANT' to pick an Debian / Ubuntu OS version: debian-11, debian-10, debian-9, ubuntu-21.04, ubuntu-20.04, ubuntu-18.04
+        // Use Debian 11, Deb   ian 9, Ubuntu 18.04 or Ubuntu 21.04 on local arm64/Apple Silicon
+        "args": {
+            "VARIANT": "bullseye"
+        }
+    },
+    // Configure tool-specific properties.
+    "customizations": {
+        // Configure properties specific to VS Code.
+        "vscode": {
+            // Set *default* container specific settings.json values on container create.
+            "settings": {
+                "terminal.integrated.defaultProfile.linux": "bash",
+                "files.associations": {
+                    "Dockerfile.*": "dockerfile",
+                    "Makefile.*": "makefile",
+                    "*.Makefile": "makefile"
+                }
+            },
+            // Add the IDs of extensions you want installed when the container is created.
+            "extensions": [
+                "mhutchie.git-graph", // Git graph visualization
+                "GitHub.vscode-pull-request-github", // Github Pull Requests
+                "ms-vscode.makefile-tools", // Makefile support
+                "redhat.vscode-yaml", // Yaml Support
+                "GitHub.copilot", // Github copilot
+                "mads-hartmann.bash-ide-vscode", // bash
+                "rogalmic.bash-debug", // bash
+                "foxundermoon.shell-format", // bash
+                "ldez.ignore-files", // .gitignore and .dockerignore syntax
+                "EditorConfig.EditorConfig" // editorconfig 
+            ]
+        }
+    },
+    "features": {
+        "docker-from-docker": {
+            "version": "latest",
+            "moby": true,
+            "dockerDashComposeVersion": "v1"
+        }
+    },
+    "runArgs": ["--init"],
+    "remoteUser": "vscode"
+}
