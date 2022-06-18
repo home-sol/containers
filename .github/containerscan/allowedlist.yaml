@@ -23,5 +23,6 @@ general:
     - CVE-2022-22968
     - CVE-2022-22970
     - CVE-2022-22965
+    - CVE-2022-0778 # Omada - MongoDb libssl1.1 dependency
   bestPracticeViolations:
     - CIS-DI-0005
