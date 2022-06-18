@@ -5,7 +5,6 @@ LABEL maintainer="Neeraj Mittal <mittal.neeraj@gmail.com>"
 USER root
 
 RUN apt-get update \
-    && apt-get upgrade -y \
     && apt-get install --no-install-recommends -y \
         wget=1.21.2-2ubuntu1 \
         ca-certificates=20211016 \
