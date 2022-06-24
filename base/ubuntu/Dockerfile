@@ -1,4 +1,4 @@
-FROM ubuntu:22.04 as source
+FROM ubuntu:20.04 as source
 
 # Upgrade to the latest version of Ubuntu.
 RUN apt-get update \
