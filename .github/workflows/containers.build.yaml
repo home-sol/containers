@@ -92,7 +92,7 @@ jobs:
           echo ::set-output name=category::${CATEGORY}
 
           VERSION=$(jq .version --raw-output "./${CATEGORY}/${{ matrix.container }}/build.config.json")
-          PLATFORM=$(jq '.platforms | join(",")' --raw-output "./${CATEGORY}/${{ matrix.container }}/build.config.json")
+          PLATFORMS=$(jq '.platforms | join(",")' --raw-output "./${CATEGORY}/${{ matrix.container }}/build.config.json")
           echo ::set-output name=version::${VERSION}
           echo ::set-output name=platforms::${PLATFORMS}
 
