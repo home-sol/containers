@@ -14,7 +14,7 @@ RUN tar zxvf "${OMADA_TAR}" \
     && rm -r omada/install.sh omada/uninstall.sh omada/readme.txt omada/release_note.txt
 
 
-FROM ghcr.io/home-sol/ubuntu:22.04-1
+FROM ghcr.io/home-sol/ubuntu:20.04-1
 
 LABEL maintainer="Neeraj Mittal <mittal.neeraj@gmail.com>"
 
@@ -28,20 +28,17 @@ SHELL ["/bin/bash", "-o", "pipefail", "-c"]
 
 RUN apt-get update \
     && apt-get install --no-install-recommends -y \
-        wget=1.21.2-2ubuntu1 \
-        ca-certificates=20211016 \
-        openjdk-8-jre-headless=8u312-b07-0ubuntu1 \
-        gnupg=2.2.27-3ubuntu2 \
+        wget=1.20.3-1ubuntu2 \
+        ca-certificates=20211016~20.04.1 \
+        openjdk-8-jre-headless=8u312-b07-0ubuntu1~20.04 \
+        gnupg=2.2.19-3ubuntu2.1 \
     && rm -rf /tmp/* /var/lib/apt/lists/*
 
-# Install mongodb with lbssl1.1 
-# https://www.mongodb.com/community/forums/t/installing-mongodb-over-ubuntu-22-04/159931/3
-RUN echo "deb http://security.ubuntu.com/ubuntu impish-security main" | tee /etc/apt/sources.list.d/impish-security.list \
-    && wget -qO - https://www.mongodb.org/static/pgp/server-5.0.asc | apt-key add - \
+# Install mongodb
+RUN wget -qO - https://www.mongodb.org/static/pgp/server-5.0.asc | apt-key add - \
     && echo "deb [ arch=amd64,arm64 ] https://repo.mongodb.org/apt/ubuntu focal/mongodb-org/5.0 multiverse" | tee /etc/apt/sources.list.d/mongodb-org-5.0.list \
     && apt-get update \
     && DEBIAN_FRONTEND=noninteractive TZ=Etc/UTC apt-get install --no-install-recommends -y \
-        libssl1.1=1.1.1l-1ubuntu1.3 \
         mongodb-org-server=5.0.9 \
     && rm -rf /tmp/* /var/lib/apt/lists/*
 
