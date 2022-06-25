@@ -35,11 +35,11 @@ RUN apt-get update \
     && rm -rf /tmp/* /var/lib/apt/lists/*
 
 # Install mongodb
-RUN wget -qO - https://www.mongodb.org/static/pgp/server-5.0.asc | apt-key add - \
-    && echo "deb [ arch=amd64,arm64 ] https://repo.mongodb.org/apt/ubuntu focal/mongodb-org/5.0 multiverse" | tee /etc/apt/sources.list.d/mongodb-org-5.0.list \
+RUN wget -qO - https://www.mongodb.org/static/pgp/server-4.4.asc | apt-key add - \
+    && echo "deb [ arch=amd64,arm64 ] https://repo.mongodb.org/apt/ubuntu focal/mongodb-org/4.4 multiverse" | tee /etc/apt/sources.list.d/mongodb-org-4.0.list \
     && apt-get update \
     && DEBIAN_FRONTEND=noninteractive TZ=Etc/UTC apt-get install --no-install-recommends -y \
-        mongodb-org-server=5.0.9 \
+        mongodb-org-server=4.4.14 \
     && rm -rf /tmp/* /var/lib/apt/lists/*
 
 COPY --from=downloads /nonroot/omada ${OMADA_HOME}
